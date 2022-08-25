@@ -35,10 +35,10 @@ def main():
             else:
                 try:
                     db.insert_data(date,bought_item,price,paid_person)
-                except:
-                    pass
-                st.success("データ登録に成功しました。")
-                st.experimental_rerun()
+                    st.experimental_rerun()
+                    st.success("データ登録に成功しました。")
+                except Exception as e:
+                    st.error(f"データ登録に失敗しました。\n{e}")
 
 
 
@@ -77,6 +77,11 @@ class ConnectDB:
         user = st.secrets["user"]
         pw = st.secrets["password"]
         self.db_info = f"host={ip} port={port} dbname={dbname} user={user} password={pw}"
+
+        # dbname = "life_cost"
+        # user = "postgres"
+        # pw = "yu0712"
+        # self.db_info = f"dbname={dbname} user={user} password={pw}"
 
     def insert_data(self,date,bought_item,price,paid_person):
         sql = f"""
@@ -139,7 +144,7 @@ def result_calc_n_display(df):
 
     # 計算結果表示
     if total_payments[0] > total_payments[1]:
-        st.subheader(f"  {persons[1]}が{calculated_price}円支払う","result")
+        st.subheader(f" {persons[1]}が{calculated_price}円支払う","result")
     elif total_payments[0] < total_payments[1]:
         st.subheader(f" {persons[0]}が{calculated_price}円支払う","result")
     else:
