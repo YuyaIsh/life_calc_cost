@@ -35,10 +35,11 @@ def main():
             else:
                 try:
                     db.insert_data(date,bought_item,price,paid_person)
-                    st.experimental_rerun()
-                    st.success("データ登録に成功しました。")
                 except Exception as e:
                     st.error(f"データ登録に失敗しました。\n{e}")
+                else:
+                    st.experimental_rerun()
+                st.success("データ登録に成功しました。")
 
 
 
