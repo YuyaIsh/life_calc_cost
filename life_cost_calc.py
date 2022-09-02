@@ -60,7 +60,7 @@ def main():
 
         with col_delete:
             try:
-                id = st.number_input("削除するidを入力",df_concat["id"].min(),df_concat["id"].max(),value=df_concat["id"].max())
+                id = st.number_input("削除するidを入力",df_concat["id"].min(),df_concat["id"].max(),value = df_concat["id"].max())
                 st.subheader(f"{df_concat[df_concat['id']==id].iat[0,2]}")
                 if st.button("削除"):
                     db.delete_data(id)
@@ -69,6 +69,7 @@ def main():
                 pass
 
         with col_df:
+            df_concat = df_concat.set_index("id")
             st.dataframe(df_concat.iloc[::-1],height=250)
 
 class ConnectDB:
