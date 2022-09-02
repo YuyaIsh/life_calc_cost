@@ -55,7 +55,7 @@ def main():
         # ログ確認&削除
     with tab_edit:
         df_concat = pd.concat([df_current_month, df_pre_month])
-        df_concat = df_concat.sort_values("日付",ascending=False)
+        df_concat = df_concat.sort_values("日付")
         col_delete,col_df = st.columns(2)
 
         with col_delete:
