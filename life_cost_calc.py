@@ -13,7 +13,7 @@ def main():
 
     st.subheader("生活費計算")
 
-    tab_input, tab_result, tab_edit = st.tabs(["入力", "計算結果", "データ編集"])
+    tab_input, tab_result, tab_edit,_ = st.tabs(["入力", "計算結果", "データ編集"])
 
 
 
