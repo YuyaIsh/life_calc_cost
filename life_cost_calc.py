@@ -81,7 +81,7 @@ def conn_supabase():
     dbname = st.secrets["dbname"]
     user = st.secrets["user"]
     pw = st.secrets["password"]
-    return db_info = f"host={ip} port={port} dbname={dbname} user={user} password={pw}"
+    return f"host={ip} port={port} dbname={dbname} user={user} password={pw}"
 
     # dbname = "life_cost"
     # user = "postgres"
