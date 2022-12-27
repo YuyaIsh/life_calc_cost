@@ -100,8 +100,9 @@ def get_categories():
             cur.execute(sql)
             data = cur.fetchall()
 
+    categories = [update_category[0][1:-2] for update_category in data]
 
-    return data
+    return categories
 
 def insert_data(date,bought_item,price,paid_person,category):
     sql = f"""
