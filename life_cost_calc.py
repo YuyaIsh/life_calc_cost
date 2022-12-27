@@ -100,7 +100,7 @@ def get_categories():
             cur.execute(sql)
             data = cur.fetchall()
 
-    categories = [update_category[0][1:-2] for update_category in data]
+    categories = [update_category[1:-2] for update_category in data]
 
     return categories
 
