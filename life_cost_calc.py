@@ -83,11 +83,6 @@ def conn_supabase():
     pw = st.secrets["password"]
     return f"host={ip} port={port} dbname={dbname} user={user} password={pw}"
 
-    # dbname = "life_cost"
-    # user = "postgres"
-    # pw = "yu0712"
-    # db_info = f"dbname={dbname} user={user} password={pw}"
-
 def get_categories():
     sql = f"""
         SELECT category
