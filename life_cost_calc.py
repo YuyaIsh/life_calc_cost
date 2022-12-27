@@ -14,7 +14,7 @@ def main():
 
     tab_input, tab_result, tab_edit = st.tabs(["入力", "計算結果", "データ編集"])
 
-
+    use_targets = get_use_targets()
 
     # データ登録
     with tab_input:
@@ -24,7 +24,7 @@ def main():
         with col_item:
             bought_item = st.text_input("買ったもの")
         with col_cat:
-            category = st.select_input("カテゴリー")
+            category = st.selectbox("カテゴリー",use_targets)
 
         col_price,col_person = st.columns(2)
         with col_price:
@@ -87,6 +87,21 @@ def conn_supabase():
     # user = "postgres"
     # pw = "yu0712"
     # db_info = f"dbname={dbname} user={user} password={pw}"
+
+def get_use_targets():
+    sql = f"""
+        SELECT ms_use_target
+        FROM household_expenses.ms_use_target
+        """
+
+    with psycopg2.connect(conn_supabase()) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql)
+            data = cur.fetchall()
+
+    use_targets = [use_target[0][1:-2].replace("\"","") for use_target in data]
+
+    return use_targets
 
 def insert_data(date,bought_item,price,paid_person,category):
     sql = f"""
