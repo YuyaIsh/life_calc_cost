@@ -111,26 +111,26 @@ def select_data(month):
     colnames =["id","日付","買い物","値段","人"]
 
     sql1 = f"""
-        SELECT date,bought_items,price,person
+        SELECT paid_instead_id,date,bought_items,price,person
         FROM household_expenses.tr_paid_instead
         where extract(month from date) = \'{month}\'
         """
     with psycopg2.connect(conn_supabase()) as conn:
         with conn.cursor() as cur:
             cur.execute(sql1)
-            data = list(cur.fetchall())  # 一行1タプルとしてリスト化
-    df_current_month = pd.DataFrame(data,columns=colnames)  # データをデータフレーム化
+            data = cur.fetchall()
+    df_current_month = pd.DataFrame(data,columns=colnames)
 
     sql2 = f"""
-        SELECT date,bought_items,price,person
+        SELECT paid_instead_id,date,bought_items,price,person
         FROM household_expenses.tr_paid_instead
         where extract(month from date) = \'{month-1}\'
         """
     with psycopg2.connect(conn_supabase()) as conn:
         with conn.cursor() as cur:
             cur.execute(sql2)
-            data = list(cur.fetchall())  # 一行1タプルとしてリスト化
-    df_pre_month = pd.DataFrame(data,columns=colnames)  # データをデータフレーム化
+            data = cur.fetchall()
+    df_pre_month = pd.DataFrame(data,columns=colnames)
 
     return df_current_month,df_pre_month
 
