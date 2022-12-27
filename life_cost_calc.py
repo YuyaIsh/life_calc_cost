@@ -88,7 +88,7 @@ class ConnectDB:
 
     def insert_data(self,date,bought_item,price,paid_person):
         sql = f"""
-            INSERT INTO household_expenses.paid_instead (date,bought_items,price,person)
+            INSERT INTO household_expenses.tr_paid_instead (date,bought_items,price,person)
             VALUES (\'{date}\',\'{bought_item}\',{price},\'{paid_person}\')
             """
         with psycopg2.connect(self.db_info) as conn:
@@ -100,7 +100,7 @@ class ConnectDB:
         colnames =["id","日付","買い物","値段","人"]
 
         sql1 = f"""
-            SELECT * FROM household_expenses.paid_instead
+            SELECT * FROM household_expenses.tr_paid_instead
             where extract(month from date) = \'{month}\'
             """
         with psycopg2.connect(self.db_info) as conn:
@@ -110,7 +110,7 @@ class ConnectDB:
         df_current_month = pd.DataFrame(data,columns=colnames)  # データをデータフレーム化
 
         sql2 = f"""
-            SELECT * FROM household_expenses.paid_instead
+            SELECT * FROM household_expenses.tr_paid_instead
             where extract(month from date) = \'{month-1}\'
             """
         with psycopg2.connect(self.db_info) as conn:
@@ -123,7 +123,7 @@ class ConnectDB:
 
     def delete_data(self,id):
         sql = f"""
-            DELETE FROM household_expenses.paid_instead
+            DELETE FROM household_expenses.tr_paid_instead
             WHERE paid_instead_id = {id}
             """
         with psycopg2.connect(self.db_info) as conn:
