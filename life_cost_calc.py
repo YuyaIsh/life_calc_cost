@@ -24,7 +24,7 @@ def main():
         with col_item:
             bought_item = st.text_input("買ったもの")
         with col_cat:
-            category = st.selectbox("カテゴリー",categories)
+            category = st.selectbox("カテゴリー",categories,index="")
 
         col_price,col_person = st.columns(2)
         with col_price:
@@ -33,8 +33,12 @@ def main():
             paid_person = st.radio("払った人",persons,horizontal=True)
 
         if st.button("登録"):
-            if price == "":
+            if not price:
                 st.warning("価格を入力してください。")
+            elif not bought_item:
+                st.warning("買ったものを入力してください。")
+            elif not category:
+                st.warning("カテゴリーを選択してください。")
             else:
                 try:
                     insert_data(date,bought_item,price,paid_person,category)
