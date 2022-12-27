@@ -6,9 +6,8 @@ import pandas as pd
 persons = ["雄也","枚"]
 
 def main():
-    db = ConnectDB()
     month = datetime.datetime.now().month
-    df_current_month,df_pre_month = db.select_data(month)
+    df_current_month,df_pre_month = select_data(month)
 
 
     st.subheader("生活費計算")
@@ -19,11 +18,15 @@ def main():
 
     # データ登録
     with tab_input:
-        col_date,col_item,col_price,col_person = st.columns(4)
+        col_date,col_item,col_cat = st.columns(3)
         with col_date:
             date = st.date_input("日付")
         with col_item:
             bought_item = st.text_input("買ったもの")
+        with col_cat:
+            category = st.select_input("カテゴリー")
+
+        col_price,col_person = st.columns(2)
         with col_price:
             price = st.text_input("価格")
         with col_person:
@@ -34,7 +37,7 @@ def main():
                 st.warning("価格を入力してください。")
             else:
                 try:
-                    db.insert_data(date,bought_item,price,paid_person)
+                    insert_data(date,bought_item,price,paid_person,category)
                 except Exception as e:
                     st.error(f"データ登録に失敗しました。\n{e}")
                 else:
@@ -63,7 +66,7 @@ def main():
                 id = st.number_input("削除するidを入力",df_concat["id"].min(),df_concat["id"].max(),value = df_concat["id"].max())
                 st.subheader(f"{df_concat[df_concat['id']==id].iat[0,2]}")
                 if st.button("削除"):
-                    db.delete_data(id)
+                    delete_data(id)
                     st.experimental_rerun()
             except:
                 pass
@@ -72,64 +75,74 @@ def main():
             df_concat = df_concat.set_index("id")
             st.dataframe(df_concat.iloc[::-1],height=250)
 
-class ConnectDB:
-    def __init__(self):
-        ip = st.secrets["host"]
-        port = st.secrets["port"]
-        dbname = st.secrets["dbname"]
-        user = st.secrets["user"]
-        pw = st.secrets["password"]
-        self.db_info = f"host={ip} port={port} dbname={dbname} user={user} password={pw}"
+def conn_supabase():
+    ip = st.secrets["host"]
+    port = st.secrets["port"]
+    dbname = st.secrets["dbname"]
+    user = st.secrets["user"]
+    pw = st.secrets["password"]
+    return db_info = f"host={ip} port={port} dbname={dbname} user={user} password={pw}"
 
-        # dbname = "life_cost"
-        # user = "postgres"
-        # pw = "yu0712"
-        # self.db_info = f"dbname={dbname} user={user} password={pw}"
+    # dbname = "life_cost"
+    # user = "postgres"
+    # pw = "yu0712"
+    # db_info = f"dbname={dbname} user={user} password={pw}"
 
-    def insert_data(self,date,bought_item,price,paid_person):
-        sql = f"""
-            INSERT INTO household_expenses.tr_paid_instead (date,bought_items,price,person)
-            VALUES (\'{date}\',\'{bought_item}\',{price},\'{paid_person}\')
-            """
-        with psycopg2.connect(self.db_info) as conn:
-            with conn.cursor() as cur:
-                cur.execute(sql)
-            conn.commit()
+def insert_data(date,bought_item,price,paid_person,category):
+    sql = f"""
+        INSERT INTO household_expenses.tr_paid_instead
+            (date,bought_items,price,person,category_id)
+        VALUES (
+            \'{date}\',
+            \'{bought_item}\',
+            {price},
+            \'{paid_person}\',
+            (SELECT category_id
+             FROM household_expenses.ms_category
+             WHERE category = \'{category}\')
+        )
+        """
+    with psycopg2.connect(conn_supabase()) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql)
+        conn.commit()
 
-    def select_data(self,month):
-        colnames =["id","日付","買い物","値段","人"]
+def select_data(month):
+    colnames =["id","日付","買い物","値段","人"]
 
-        sql1 = f"""
-            SELECT * FROM household_expenses.tr_paid_instead
-            where extract(month from date) = \'{month}\'
-            """
-        with psycopg2.connect(self.db_info) as conn:
-            with conn.cursor() as cur:
-                cur.execute(sql1)
-                data = list(cur.fetchall())  # 一行1タプルとしてリスト化
-        df_current_month = pd.DataFrame(data,columns=colnames)  # データをデータフレーム化
+    sql1 = f"""
+        SELECT date,bought_items,price,person
+        FROM household_expenses.tr_paid_instead
+        where extract(month from date) = \'{month}\'
+        """
+    with psycopg2.connect(conn_supabase()) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql1)
+            data = list(cur.fetchall())  # 一行1タプルとしてリスト化
+    df_current_month = pd.DataFrame(data,columns=colnames)  # データをデータフレーム化
 
-        sql2 = f"""
-            SELECT * FROM household_expenses.tr_paid_instead
-            where extract(month from date) = \'{month-1}\'
-            """
-        with psycopg2.connect(self.db_info) as conn:
-            with conn.cursor() as cur:
-                cur.execute(sql2)
-                data = list(cur.fetchall())  # 一行1タプルとしてリスト化
-        df_pre_month = pd.DataFrame(data,columns=colnames)  # データをデータフレーム化
+    sql2 = f"""
+        SELECT date,bought_items,price,person
+        FROM household_expenses.tr_paid_instead
+        where extract(month from date) = \'{month-1}\'
+        """
+    with psycopg2.connect(conn_supabase()) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql2)
+            data = list(cur.fetchall())  # 一行1タプルとしてリスト化
+    df_pre_month = pd.DataFrame(data,columns=colnames)  # データをデータフレーム化
 
-        return df_current_month,df_pre_month
+    return df_current_month,df_pre_month
 
-    def delete_data(self,id):
-        sql = f"""
-            DELETE FROM household_expenses.tr_paid_instead
-            WHERE paid_instead_id = {id}
-            """
-        with psycopg2.connect(self.db_info) as conn:
-            with conn.cursor() as cur:
-                cur.execute(sql)
-            conn.commit()
+def delete_data(id):
+    sql = f"""
+        DELETE FROM household_expenses.tr_paid_instead
+        WHERE paid_instead_id = {id}
+        """
+    with psycopg2.connect(conn_supabase()) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql)
+        conn.commit()
 
 def result_calc_n_display(df):
     df_sum = df[["値段","人"]].groupby("人").sum()  # 各自の合計金額を計算
