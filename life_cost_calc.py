@@ -78,11 +78,17 @@ def main():
             st.dataframe(df_concat.iloc[::-1],height=250)
 
 def conn_supabase():
-    ip = st.secrets["host"]
-    port = st.secrets["port"]
-    dbname = st.secrets["dbname"]
-    user = st.secrets["user"]
-    pw = st.secrets["password"]
+    ip = "db.rmqawvzeqmvemjcdlymx.supabase.co"
+    port = 5432
+    dbname = "postgres"
+    user = "postgres"
+    pw = "a;oiufnhwoawer"
+
+    # ip = st.secrets["host"]
+    # port = st.secrets["port"]
+    # dbname = st.secrets["dbname"]
+    # user = st.secrets["user"]
+    # pw = st.secrets["password"]
     return f"host={ip} port={port} dbname={dbname} user={user} password={pw}"
 
 def get_categories():
