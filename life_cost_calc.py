@@ -78,24 +78,17 @@ def main():
             st.dataframe(df_concat.iloc[::-1],height=250)
 
 def conn_supabase():
-    ip = "db.rmqawvzeqmvemjcdlymx.supabase.co"
-    port = 5432
-    dbname = "postgres"
-    user = "postgres"
-    pw = "a;oiufnhwoawer"
-
-    # ip = st.secrets["host"]
-    # port = st.secrets["port"]
-    # dbname = st.secrets["dbname"]
-    # user = st.secrets["user"]
-    # pw = st.secrets["password"]
+    ip = st.secrets["host"]
+    port = st.secrets["port"]
+    dbname = st.secrets["dbname"]
+    user = st.secrets["user"]
+    pw = st.secrets["password"]
     return f"host={ip} port={port} dbname={dbname} user={user} password={pw}"
 
 def get_categories():
     sql = f"""
         SELECT category
         FROM household_expenses.ms_category
-        ORDER BY sort_order DESC
         """
 
     with psycopg2.connect(conn_supabase()) as conn:
